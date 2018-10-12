@@ -1,6 +1,4 @@
-//当页面加载完成时
 
-	
 	//1.获取当前城市的天气信息
 	let tianqi;
 	$.ajax({
@@ -14,6 +12,8 @@
 		}
 	})
 	//获取天气数据的函数
+	let maxtemper=[];
+    let lowtemper=[];
 	function updata(tianqi){
 		//获取当前的城市
 		$(".s1").html(tianqi.city);
@@ -46,8 +46,38 @@
 			`
 			$(".weather2 ul").append(str);
 		})
+		
+		//一周天气
+		
+		let weekweather=tianqi.weather.forecast_list;
+		console.log(weekweather);
+		weekweather.forEach(function(v){
+			let str4=`
+			<li>
+				<p class="p9">${(v.date).slice(5,7)}/${(v.date).slice(8,10)}</p>
+				<p class="p0">${v.condition}</p>
+				<div class="biao">
+					<img src="img/${v.weather_icon_id}.png"/>
+				</div>
+			</li>
+			`
+			$(".u1").append(str4);
+			let str5=`
+			<li>
+				<div class="biao">
+					<img src="img/${v.weather_icon_id}.png"/>
+				</div>
+				<p class="p0">${v.condition}</p>
+				<p class="p8">${v.wind_direction}</p>
+				<p class="p9">${v.wind_level}级</p>
+			</li>
+			`
+			$(".u2").append(str5);
+			maxtemper[maxtemper.length]=v.high_temperature;
+            lowtemper[lowtemper.length]=v.low_temperature;
+		})
 	}
-	
+	console.log(maxtemper,lowtemper);
 	
 	
 	//点击城市,出现城市页面
@@ -111,9 +141,9 @@
     			dataType:"jsonp",
     			success:function(obj){
     				let tianqi2=obj.data;
-    				$("").html("");
-    				$("").html("");
-    				$("").html("");
+    				$(".weather2 ul").html("");
+    				$(".u1").html("");
+    				$(".u2").html("");
     				updata(tianqi2);
     			}
     		})
@@ -128,12 +158,75 @@
     		$(".location").css({"display":"none"});
     		$(".box").css({"display":"block"});
     		let text=$(".a1 input").val();
-    		ajaxs(text);
+    		for(let i in city){
+		        for(let j in city[i]){
+		           if(text==j){
+		               ajaxs(text);
+		               return;
+		           }
+		        }
+		
+		      }
+		      if(text!==""){
+		          alert("该城市不存在");
+		        }
     	})
+    	
+    	
+    	
+    	  var myChart = echarts.init(document.getElementById('main'));
+      
+        // 指定图表的配置项和数据
+       myChart.setOption({
+          title: {
+        // text: '未来一周气温变化',
+        // subtext: '纯属虚构'
+    },
+   
+    xAxis:  {
+        type: 'category',
+        boundaryGap: false,
+        data: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        show: false
+    },
+    yAxis: {
+        type: 'value',
+        axisLabel: {
+            formatter: '{value} °C'
+        },
+        show: false
+    },
+    //折线距离周围的距离
+    grid:{
+            left: '-1%',
+            top : '15%',
+            left: '0',
+            bottom: '-15%',
+            containLabel:true
+        },
+    series: [
+        {
+            name:'最高气温',
+            type:'line',
+            data: maxtemper,
+            itemStyle : { normal: {label : {show: true},lineStyle : {color : '#FFB74D'}}},
+            
+        },
+        {
+            name:'最低气温',
+            type:'line',
+            data: lowtemper,
+            itemStyle : { normal: {label : {show: true},lineStyle : {color : '#4FC3F7'}}},
+    
+        }
+    ],
+
+
+  })
+   
     }
 	
-
-   
+      
 
 
 
